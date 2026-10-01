@@ -1,0 +1,4381 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functional Training</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f6fa;
+            color: #222;
+        }
+
+        header {
+            background: linear-gradient(135deg, #ffb6d9, #c9b6ff);
+            padding: 35px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        header h1 {
+            margin: 0 0 10px;
+            font-size: 34px;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 17px;
+        }
+
+        .profile,
+        .info,
+        .progress-box,
+        .training-controls,
+        .history,
+        .exercise {
+            background: white;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        .profile {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 18px;
+        }
+
+        .profile h2 {
+            margin-top: 0;
+        }
+
+        .profile-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .auth-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .auth-row input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .auth-button {
+            background: #222;
+            color: white;
+        }
+
+        .register-button {
+            background: #e889b7;
+            color: white;
+        }
+
+        .logout-button {
+            background: #eee;
+            color: #333;
+        }
+
+        .user-status {
+            margin-top: 10px;
+            color: #777;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .account-info {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #f7f7fb;
+            display: block;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .day-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .day-button {
+            padding: 20px;
+            color: white;
+            font-size: 17px;
+            transition: 0.2s;
+        }
+
+        .day-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .day1-button {
+            background: #e889b7;
+        }
+
+        .day2-button {
+            background: #65b58a;
+        }
+
+        .day3-button {
+            background: #9072d8;
+        }
+
+        .day-button small {
+            display: block;
+            margin-top: 7px;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+
+        .progress-box {
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .progress-title {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 16px;
+            background: #e8e8e8;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff83ba, #9f7aea);
+            transition: width 0.3s;
+        }
+
+        .info {
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .info h2 {
+            margin-top: 0;
+        }
+
+        .workout-day {
+            display: none;
+        }
+
+        .workout-day.active {
+            display: block;
+        }
+
+        .day-title {
+            padding: 20px;
+            border-radius: 18px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .day-title.day1 {
+            background: #e889b7;
+        }
+
+        .day-title.day2 {
+            background: #65b58a;
+        }
+
+        .day-title.day3 {
+            background: #9072d8;
+        }
+
+        .exercise {
+            border-radius: 20px;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        .exercise-header {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .exercise-image {
+            width: 230px;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .exercise h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .exercise-description {
+            color: #555;
+            line-height: 1.55;
+        }
+
+        .technique {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f7f7fb;
+            border-radius: 12px;
+            line-height: 1.55;
+            white-space: pre-line;
+        }
+
+        .technique strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .sets {
+            margin-top: 20px;
+        }
+
+        .set-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 120px;
+            gap: 10px;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            background: #f6f6f8;
+        }
+
+        .set-number {
+            font-weight: bold;
+        }
+
+        .set-row input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .set-row input:disabled {
+            background: #eee;
+        }
+
+        .set-button {
+            background: #ddd;
+            color: #777;
+        }
+
+        .set-button.enabled {
+            background: #222;
+            color: white;
+        }
+
+        .set-button.completed {
+            background: #65b58a;
+            color: white;
+        }
+
+        .set-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .previous {
+            margin-top: 12px;
+            color: #777;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .training-controls {
+            padding: 20px;
+            border-radius: 18px;
+            margin: 25px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .finish-button {
+            background: #222;
+            color: white;
+        }
+
+        .reset-button {
+            background: #eee;
+        }
+
+        .training-message {
+            width: 100%;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .history {
+            border-radius: 18px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .history h2 {
+            margin-top: 0;
+        }
+
+        .history-item {
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-weight: bold;
+        }
+
+        .history-result {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .completion {
+            display: none;
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 50px 20px;
+            margin: 30px auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .completion.active {
+            display: block;
+        }
+
+        .completion h2 {
+            font-size: 30px;
+        }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .image-modal img {
+            max-width: 95%;
+            max-height: 90%;
+            border-radius: 15px;
+        }
+
+        .close-modal {
+            position: fixed;
+            top: 20px;
+            right: 25px;
+            color: white;
+            font-size: 35px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ============================================================
+           ВЫБОР ПРОГРАММЫ
+           ============================================================ */
+
+        .gender-panel {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 25px;
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            text-align: center;
+        }
+
+        .gender-panel h2 {
+            margin-top: 0;
+        }
+
+        .gender-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .gender-button {
+            min-height: 100px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .female-choice {
+            background: linear-gradient(135deg, #e889b7, #9072d8);
+        }
+
+        .male-choice {
+            background: linear-gradient(135deg, #172b4d, #35658f);
+        }
+
+        .change-gender-button {
+            margin-top: 10px;
+            background: #eee;
+            color: #333;
+        }
+
+        /* ============================================================
+           МУЖСКАЯ ТЕМА
+           ============================================================ */
+
+        body.male-theme {
+            background: #0c1420;
+            color: #e8eef7;
+        }
+
+        body.male-theme header {
+            background: linear-gradient(135deg, #101d32, #254d72);
+        }
+
+        body.male-theme .profile,
+        body.male-theme .info,
+        body.male-theme .progress-box,
+        body.male-theme .training-controls,
+        body.male-theme .history,
+        body.male-theme .exercise,
+        body.male-theme .completion,
+        body.male-theme .gender-panel {
+            background: #152235;
+            color: #e8eef7;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        body.male-theme .account-info,
+        body.male-theme .technique,
+        body.male-theme .set-row {
+            background: #1d2d43;
+            color: #dbe5f2;
+        }
+
+        body.male-theme .exercise-description,
+        body.male-theme .previous,
+        body.male-theme .training-message,
+        body.male-theme .user-status,
+        body.male-theme .history-result {
+            color: #aebdd0;
+        }
+
+        body.male-theme .day1-button {
+            background: #315b84;
+        }
+
+        body.male-theme .day2-button {
+            background: #3d6f91;
+        }
+
+        body.male-theme .day3-button {
+            background: #536b9b;
+        }
+
+        body.male-theme .day-title.day1 {
+            background: #315b84;
+        }
+
+        body.male-theme .day-title.day2 {
+            background: #3d6f91;
+        }
+
+        body.male-theme .day-title.day3 {
+            background: #536b9b;
+        }
+
+        body.male-theme .progress-track {
+            background: #26384e;
+        }
+
+        body.male-theme .progress-bar {
+            background: linear-gradient(90deg, #315f91, #6e8fc0);
+        }
+
+        body.male-theme .set-row input {
+            background: #24364c;
+            color: white;
+            border-color: #40546c;
+        }
+
+        body.male-theme .set-row input::placeholder {
+            color: #91a2b7;
+        }
+
+        body.male-theme .set-row input:disabled {
+            background: #1a2839;
+        }
+
+        body.male-theme .set-button {
+            background: #35465b;
+            color: #b8c4d2;
+        }
+
+        body.male-theme .set-button.enabled {
+            background: #38658e;
+            color: white;
+        }
+
+        body.male-theme .set-button.completed {
+            background: #467c70;
+            color: white;
+        }
+
+        body.male-theme .finish-button {
+            background: #315b84;
+        }
+
+        body.male-theme .reset-button,
+        body.male-theme .logout-button,
+        body.male-theme .change-gender-button {
+            background: #26384e;
+            color: #e8eef7;
+        }
+
+        body.male-theme .history-item {
+            border-color: #2d4057;
+        }
+
+        @media (max-width: 800px) {
+            .day-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .exercise-header {
+                flex-direction: column;
+            }
+
+            .exercise-image {
+                width: 100%;
+                height: 220px;
+            }
+
+            .set-row {
+                grid-template-columns: 1fr;
+            }
+
+            .set-number {
+                margin-bottom: 3px;
+            }
+
+            .auth-row {
+                grid-template-columns: 1fr;
+            }
+
+            .gender-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏋️ Functional Training</h1>
+    <p>Три тренировочных дня · прогресс · веса · повторения · история</p>
+</header>
+
+<section class="profile">
+
+    <h2>👤 Профиль и синхронизация</h2>
+
+    <div id="loginPanel">
+
+        <p>
+            Войди в один и тот же аккаунт на разных устройствах,
+            чтобы видеть общий прогресс.
+        </p>
+
+        <div class="auth-row">
+
+            <input
+                id="emailInput"
+                type="email"
+                autocomplete="email"
+                placeholder="Email"
+            >
+
+            <input
+                id="passwordInput"
+                type="password"
+                autocomplete="current-password"
+                placeholder="Пароль"
+            >
+
+        </div>
+
+        <div class="profile-row" style="margin-top:10px;">
+
+            <button
+                class="auth-button"
+                onclick="login()"
+            >
+                Войти
+            </button>
+
+            <button
+                class="register-button"
+                onclick="register()"
+            >
+                Создать аккаунт
+            </button>
+
+        </div>
+
+    </div>
+
+    <div id="profilePanel" class="hidden">
+
+        <div class="profile-row">
+
+            <button
+                class="logout-button"
+                onclick="logout()"
+            >
+                Выйти
+            </button>
+
+        </div>
+
+        <div
+            id="accountInfo"
+            class="account-info"
+        ></div>
+
+    </div>
+
+    <div
+        id="userStatus"
+        class="user-status"
+    >
+        Подключаем Firebase...
+    </div>
+
+</section>
+
+<!-- ============================================================
+     ВЫБОР ПРОГРАММЫ
+     ============================================================ -->
+
+<section id="genderPanel" class="gender-panel hidden">
+
+    <h2>Выбери программу</h2>
+
+    <p>
+        Выбор программы действует в текущем сеансе.
+        Данные мужской и женской программ хранятся отдельно.
+    </p>
+
+    <div class="gender-buttons">
+
+        <button
+            class="gender-button female-choice"
+            onclick="selectGender('female')"
+        >
+            🩷 Женская программа
+            <small>
+                Ноги + корпус · Верх тела · Функциональная
+            </small>
+        </button>
+
+        <button
+            class="gender-button male-choice"
+            onclick="selectGender('male')"
+        >
+            🔵 Мужская программа
+            <small>
+                Ноги · Верх тела · Фуллбоди
+            </small>
+        </button>
+
+    </div>
+
+</section>
+
+<main class="container">
+
+    <!-- ============================================================
+         ЖЕНСКИЙ / ОБЩИЙ ВЫБОР ДНЯ
+         ============================================================ -->
+
+    <div
+        id="daySelector"
+        class="day-selector hidden"
+    >
+
+        <button
+            class="day-button day1-button"
+            onclick="startDay(1)"
+            id="startDay1"
+        >
+            🩷 ▶ Начать День 1
+            <small>Ноги + корпус</small>
+        </button>
+
+        <button
+            class="day-button day2-button"
+            onclick="startDay(2)"
+            id="startDay2"
+        >
+            🟢 ▶ Начать День 2
+            <small>Верх тела</small>
+        </button>
+
+        <button
+            class="day-button day3-button"
+            onclick="startDay(3)"
+            id="startDay3"
+        >
+            🟣 ▶ Начать День 3
+            <small>Функциональная</small>
+        </button>
+
+    </div>
+
+    <section
+        id="progressBox"
+        class="progress-box hidden"
+    >
+
+        <div class="progress-title">
+
+            <span id="progressTitle">
+                Выбери тренировочный день
+            </span>
+
+            <span id="progressText">
+                0 / 0
+            </span>
+
+        </div>
+
+        <div class="progress-track">
+
+            <div
+                id="progressBar"
+                class="progress-bar"
+            ></div>
+
+        </div>
+
+    </section>
+
+    <section
+        id="infoBox"
+        class="info hidden"
+    >
+
+
+
+    </section>
+
+    <!-- ============================================================
+         DAY 1 — ЖЕНСКАЯ ПРОГРАММА
+         НЕ ИЗМЕНЕНО
+         ============================================================ -->
+
+    <section id="day1" class="workout-day">
+
+        <div class="day-title day1">
+            <h2>🩷 День 1 — Ноги + корпус</h2>
+            <p>6 упражнений · 20 подходов</p>
+        </div>
+        <div class="warmup">
+      <h3>🔥 Разминка</h3>
+      <ul>
+        <li>5 минут лёгкого кардио</li>
+        <li>Мобилизация тазобедренных и голеностопа</li>
+        <li>2 лёгких разминочных подхода перед приседаниями</li>
+      </ul>
+    </div>
+
+        <article class="exercise" data-day="1" data-exercise="day1-ex1" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://ss.sport-express.ru/userfiles/materials/169/1692602/volga.jpg"
+                    alt="Приседания со штангой"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>1. Приседания со штангой</h3>
+                    <div class="exercise-description">
+                        Базовое упражнение для ног и корпуса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Стопы примерно на ширине плеч.
+                        Носки слегка развёрнуты наружу.
+                        Штанга лежит устойчиво на верхней части спины.
+                        Колени двигаются в направлении носков.
+                        Спина сохраняет нейтральное положение.
+                        Опускайся контролируемо и поднимайся через всю стопу.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="1" data-exercise="day1-ex2" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://photobooth.cdn.sports.ru/preset/post/c/dd/e6e28f4004e2f9d424d5f6bf22efd.png?f=webp&q=90&s=2x&w=730"
+                    alt="Румынская тяга"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>2. Румынская тяга</h3>
+                    <div class="exercise-description">
+                        Основная нагрузка приходится на заднюю поверхность бедра и ягодицы.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Стопы примерно на ширине таза.
+                        Руки держат штангу чуть шире ног.
+                        Колени слегка согнуты.
+                        Отводи таз назад, сохраняя спину нейтральной.
+                        Штанга движется близко к ногам.
+                        Поднимайся за счёт разгибания таза.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="1" data-exercise="day1-ex3" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://weighttraining.guide/wp-content/uploads/2021/10/Bulgarian-split-squat.png"
+                    alt="Болгарские выпады"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>3. Болгарские выпады</h3>
+                    <div class="exercise-description">
+                        Одностороннее упражнение для ног и ягодиц.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Передняя стопа стоит устойчиво всей поверхностью.
+                        Задняя стопа находится на опоре.
+                        Корпус слегка наклонён вперёд.
+                        Переднее колено направляется примерно туда же,
+                        куда смотрят пальцы стопы.
+                        Толкайся передней ногой.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="1" data-exercise="day1-ex4" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=40f7f7ac4d9be7c61e65ebc9c0598e31_l-4824877-images-thumbs&n=13"
+                    alt="Ягодичный мост"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>4. Ягодичный мост / Hip Thrust</h3>
+                    <div class="exercise-description">
+                        Упражнение с акцентом на ягодичные мышцы.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Лопатки опираются на скамью.
+                        Стопы примерно на ширине таза.
+                        В верхней точке корпус и бёдра образуют примерно прямую линию.
+                        Не переразгибай поясницу.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="1" data-exercise="day1-ex5" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://i.ytimg.com/vi/m4fF2EOBMjc/hqdefault.jpg"
+                    alt="Подъём ног в висе"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>5. Подъём ног в висе</h3>
+                    <div class="exercise-description">
+                        Упражнение на мышцы корпуса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Держись за перекладину устойчивым хватом.
+                        Не раскачивайся.
+                        Поднимай ноги контролируемо.
+                        Опускай их без резкого движения.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="1" data-exercise="day1-ex6" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=8d540efabd60b55deeb80cea6ec63a2f_l-9597954-images-thumbs&n=13"
+                    alt="Планка с касанием плеч"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>6. Планка с касанием плеч</h3>
+                    <div class="exercise-description">
+                        Упражнение на стабилизацию корпуса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Ладони находятся под плечами.
+                        Ноги стоят достаточно широко для устойчивости.
+                        Тело образует прямую линию.
+                        Поочерёдно касайся противоположного плеча.
+                        Старайся не раскачивать таз.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+        <div class="finisher">
+
+      <h3>🔥 Finisher — 3 круга</h3>
+
+      <ul>
+        <li>10 берпи</li>
+        <li>12 махов гирей</li>
+        <li>10 приседаний с собственным весом</li>
+        <li>30 секунд отдыха</li>
+      </ul>
+
+    </div>
+
+
+    </section>
+
+    <!-- ============================================================
+         DAY 2 — ЖЕНСКАЯ ПРОГРАММА
+         НЕ ИЗМЕНЕНО
+         ============================================================ -->
+
+    <section id="day2" class="workout-day">
+
+        <div class="day-title day2">
+            <h2>🟢 День 2 — Верх тела</h2>
+            <p>7 упражнений · 23 подхода</p>
+        </div>
+        <div class="warmup">
+      <h3>🔥 Разминка</h3>
+      <ul>
+        <li>5 минут лёгкого кардио</li>
+        <li>Мобилизация плеч и грудного отдела</li>
+        <li>Лёгкие тяги резинкой</li>
+      </ul>
+    </div>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex1" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://cf4.ppt-online.org/files4/slide/z/z6eKyM1o8Cv2UnJSTfmk5rc7G4j3sRw9IWQPYl/slide-0.jpg"
+                    alt="Подтягивания"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>1. Подтягивания</h3>
+                    <div class="exercise-description">
+                        Упражнение для спины, рук и плечевого пояса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Возьмись за перекладину чуть шире плеч.
+                        Начинай движение без раскачивания.
+                        Подтяни грудь к перекладине.
+                        Контролируемо опустись вниз.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex2" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=175209bfebfe56317fa8f86cfe179a17_l-16514006-images-thumbs&n=13"
+                    alt="Отжимания на брусьях"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>2. Отжимания на брусьях</h3>
+                    <div class="exercise-description">
+                        Упражнение для груди, плеч и трицепса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Удерживай корпус стабильно.
+                        Локти сгибаются контролируемо.
+                        Не опускайся глубже комфортной амплитуды.
+                        Вернись вверх без резкого рывка.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex3" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=5ede19e6cc9492839208c05eb5e6d2bc_l-16345062-images-thumbs&n=13"
+                    alt="Тяга штанги в наклоне"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>3. Тяга штанги в наклоне</h3>
+                    <div class="exercise-description">
+                        Упражнение на мышцы спины.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Стопы устойчиво стоят на полу.
+                        Колени слегка согнуты.
+                        Корпус наклонён вперёд.
+                        Спина сохраняет нейтральное положение.
+                        Тяни штангу к нижней части живота.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex4" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=e7fe492b114f8815aad61f0f30ec91f48ee2a0f7-3380069-images-thumbs&n=13"
+                    alt="Жим гантелей лёжа"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>4. Жим гантелей лёжа</h3>
+                    <div class="exercise-description">
+                        Упражнение для груди, плеч и трицепса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Стопы устойчиво стоят на полу.
+                        Лопатки слегка сведены.
+                        Гантели движутся примерно над грудью.
+                        Опускай их контролируемо.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex5" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://fitwill.app/api/image/0290?p=1&w=1024&h=1024"
+                    alt="Жим гантелей над головой"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>5. Жим гантелей над головой</h3>
+                    <div class="exercise-description">
+                        Упражнение для плечевого пояса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Стопы устойчиво стоят на полу.
+                        Гантели находятся примерно на уровне плеч.
+                        Выжимай их вверх контролируемо.
+                        Не переразгибай поясницу.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex6" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=43f96ee2114717c3fdf435a8b7ef01fc74b4c7f7-15429794-images-thumbs&n=13"
+                    alt="Тяга верхнего блока"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>6. Тяга верхнего блока</h3>
+                    <div class="exercise-description">
+                        Упражнение для широчайших и мышц верхней части спины.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Сядь устойчиво.
+                        Возьми рукоять широким хватом.
+                        Потяни её к верхней части груди.
+                        Не раскачивай корпус.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="2" data-exercise="day2-ex7" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://litvek.com/icl/i/37/628337/img_26.png"
+                    alt="Планка с подтягиванием колена"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>7. Планка с подтягиванием колена</h3>
+                    <div class="exercise-description">
+                        Динамическое упражнение на корпус.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Ладони под плечами.
+                        Тело удерживай в прямой линии.
+                        Поочерёдно подтягивай колено вперёд.
+                        Старайся не вращать таз.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+        <div class="finisher">
+
+      <h3>🔥 Finisher — EMOM 12 минут</h3>
+
+      <ul>
+        <li>Минута 1 — 8 берпи</li>
+        <li>Минута 2 — 10 калорий на гребном тренажёре</li>
+        <li>Минута 3 — 12 махов гирей</li>
+        <li>Повторить 4 раза</li>
+      </ul>
+
+    </div>
+
+    </section>
+
+    <!-- ============================================================
+         DAY 3 — ЖЕНСКАЯ ПРОГРАММА
+         НЕ ИЗМЕНЕНО
+         ============================================================ -->
+
+    <section id="day3" class="workout-day">
+
+        <div class="day-title day3">
+            <h2>🟣 День 3 — Функциональная</h2>
+            <p>7 упражнений · 24 подхода</p>
+        </div>
+        <div class="warmup">
+      <h3>🔥 Разминка</h3>
+      <ul>
+        <li>5 минут: гребля / велосипед / дорожка</li>
+        <li>Динамическая разминка всего тела</li>
+        <li>1–2 лёгких разминочных подхода</li>
+      </ul>
+    </div>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex1" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=5d61f99840ba74fd592bc8a510f6fe16_l-12539610-images-thumbs&n=13"
+                    alt="Берпи"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>1. Берпи</h3>
+                    <div class="exercise-description">
+                        Динамическое упражнение на всё тело.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Начинай в устойчивой стойке.
+                        Опускайся в положение с опорой руками.
+                        Выполняй движение контролируемо.
+                        Возвращайся в стойку без резкого приземления.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex2" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=cd43b44d9d39c53c122c0cedda9c1ad05ab871d4-5263029-images-thumbs&n=13"
+                    alt="Трастеры с гантелями"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>2. Трастеры с гантелями</h3>
+                    <div class="exercise-description">
+                        Комбинация приседания и жима над головой.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Держи гантели у плеч.
+                        Выполни приседание.
+                        При подъёме используй движение ног,
+                        чтобы помочь вывести гантели вверх.
+                        Заверши движение устойчиво.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex3" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=4ac4880b1ada1c025d0ce51d47da4fa8_l-9242682-images-thumbs&n=13"
+                    alt="Махи гирей"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>3. Махи гирей</h3>
+                    <div class="exercise-description">
+                        Динамическое движение с акцентом на работу таза.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Гиря находится перед собой.
+                        Движение начинается с отведения таза назад.
+                        Затем мощно разгибай таз.
+                        Не поднимай гирю руками отдельно от движения корпуса.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex4" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://i.pinimg.com/736x/36/c5/c8/36c5c8bce260f747fc0153de2b42338b.jpg"
+                    alt="Выпады с гантелями"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>4. Выпады с гантелями</h3>
+                    <div class="exercise-description">
+                        Упражнение на ноги и стабилизацию.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Сделай контролируемый шаг.
+                        Передняя стопа полностью стоит на полу.
+                        Колено направлено в сторону носка.
+                        Оттолкнись передней ногой и вернись.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex5" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://fsd.multiurok.ru/html/2019/04/03/s_5ca496680e8a6/1130832_3.png"
+                    alt="Отжимания"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>5. Отжимания</h3>
+                    <div class="exercise-description">
+                        Упражнение для груди, плеч, рук и корпуса.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Ладони примерно под плечами.
+                        Тело сохраняй прямым.
+                        Локти не разводи чрезмерно.
+                        Опускайся и поднимайся плавно.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex6" data-sets="4">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://www.crossfit.com/wp-content/uploads/2020/01/10105355/burpee-box-jump-over-Foucher-scaled.png"
+                    alt="Берпи через короб"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>6. Берпи через короб</h3>
+                    <div class="exercise-description">
+                        Динамическое функциональное упражнение.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Выполняй движение контролируемо.
+                        При переходе через короб следи за устойчивостью.
+                        Приземляйся мягко и сохраняй контроль.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <article class="exercise" data-day="3" data-exercise="day3-ex7" data-sets="3">
+            <div class="exercise-header">
+                <img
+                    class="exercise-image"
+                    src="https://avatars.mds.yandex.net/i?id=f13c18c9b406e5beb45562063a654e1c_l-5220483-images-thumbs&n=13"
+                    alt="Альпинист"
+                    onclick="openImage(this.src)"
+                >
+                <div>
+                    <h3>7. Альпинист</h3>
+                    <div class="exercise-description">
+                        Динамическое упражнение на корпус.
+                    </div>
+                    <div class="technique">
+                        <strong>Техника</strong>
+                        Исходное положение — упор лёжа.
+                        Ладони под плечами.
+                        Поочерёдно подтягивай колени вперёд.
+                        Сохраняй корпус максимально стабильным.
+                    </div>
+                </div>
+            </div>
+            <div class="sets"></div>
+            <div class="previous"></div>
+        </article>
+
+        <div class="finisher">
+
+      <h3>🔥 Finisher — AMRAP 10 минут</h3>
+
+      <ul>
+        <li>8 берпи</li>
+        <li>10 приседаний с гирей</li>
+        <li>12 махов гирей</li>
+        <li>10 выпадов</li>
+      </ul>
+
+      <p>
+        AMRAP означает выполнить качественно как можно больше кругов
+        за отведённое время. Не жертвуй техникой ради скорости.
+      </p>
+
+    </div>
+
+    </section>
+
+    <!-- ============================================================
+         DAY 1 — МУЖСКАЯ ПРОГРАММА
+         ============================================================ -->
+
+    <!-- ============================================================
+     DAY 1 — ГРУДЬ И ТРИЦЕПС
+     ============================================================ -->
+
+<section id="male-day1" class="workout-day">
+
+    <div class="day-title day1">
+        <h2>🔵 День 1 — Грудь и трицепс</h2>
+        <p>5 упражнений · 15 подходов</p>
+    </div>
+
+    <article class="exercise" data-day="1" data-exercise="male-day1-ex1" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://fitwill.app/api/image/0025?p=1&w=1920&h=1080"
+                alt="Жим штанги лёжа"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>1. Жим штанги лёжа</h3>
+                <div class="exercise-description">
+                    Базовое упражнение для грудных мышц, передней части плеч и трицепса.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Ляг на скамью и устойчиво поставь стопы на пол.
+                    Лопатки слегка сведи и удерживай корпус стабильным.
+                    Опускай штангу контролируемо к нижней части груди.
+                    Выжимай штангу вверх без резких движений.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="1" data-exercise="male-day1-ex2" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://steelsports.ru/wp-content/uploads/2019/08/3311.jpg"
+                alt="Жим гантелей на наклонной скамье"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>2. Жим гантелей на наклонной</h3>
+                <div class="exercise-description">
+                    Упражнение с акцентом на верхнюю часть грудных мышц, а также плечи и трицепс.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Установи скамью под умеренным наклоном.
+                    Держи гантели примерно на уровне верхней части груди.
+                    Опускай их плавно и симметрично.
+                    Выжимай гантели вверх, сохраняя контроль движения.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="1" data-exercise="male-day1-ex3" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://avatars.mds.yandex.net/i?id=f8cd132df758685a7f1192cea28db38c_l-10350400-images-thumbs&n=13"
+                alt="Сведение в тренажере"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>3. Сведение в тренажере</h3>
+                <div class="exercise-description">
+                    Изолирующее упражнение для грудных мышц.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь устойчиво и прижми спину к спинке тренажёра.
+                    Возьми рукояти и слегка согни руки в локтях.
+                    Своди рукояти перед собой плавным движением.
+                    В конечной точке не делай резкого рывка.
+                    Медленно вернись в исходное положение.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="1" data-exercise="male-day1-ex4" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://fitwill.app/api/image/0241?p=1&amp;w=1024&amp;h=1024"
+                alt="Разгибание на трицепс на блоке"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>4. Разгибание на трицепс на блоке</h3>
+                <div class="exercise-description">
+                    Изолирующее упражнение для трицепса.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Встань устойчиво перед верхним блоком.
+                    Локти держи близко к корпусу.
+                    Разгибай руки вниз, не раскачивая корпус.
+                    В нижней точке полностью контролируй движение.
+                    Медленно верни рукоять вверх.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="1" data-exercise="male-day1-ex5" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://photobooth.cdn.sports.ru/preset/post/8/0a/098332f754129acdc18bce33d2b47.png?f=webp&q=90&s=2x&w=730"
+                alt="Французский жим гантелью"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>5. Французский жим гантелью</h3>
+                <div class="exercise-description">
+                    Упражнение для трицепса с акцентом на разгибание руки в локтевом суставе.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Держи одну гантель двумя руками над головой.
+                    Локти направляй вперёд и не разводи сильно в стороны.
+                    Плавно опускай гантель за голову.
+                    Затем разгибай руки и возвращай гантель вверх.
+                    Выполняй движение без рывков.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+</section>
+
+
+<!-- ============================================================
+     DAY 2 — СПИНА И БИЦЕПС
+     ============================================================ -->
+
+<section id="male-day2" class="workout-day">
+
+    <div class="day-title day2">
+        <h2>🔵 День 2 — Спина и бицепс</h2>
+        <p>5 упражнений · 15 подходов</p>
+    </div>
+
+    <article class="exercise" data-day="2" data-exercise="male-day2-ex1" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://gymbot.ru/wp-content/uploads/2024/06/lat-pulldown-768x598-1.png"
+                alt="Тяга верхнего блока"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>1. Тяга верхнего блока</h3>
+                <div class="exercise-description">
+                    Упражнение для широчайших мышц спины и сгибателей рук.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь устойчиво и зафиксируй ноги.
+                    Возьми рукоять удобным хватом.
+                    Потяни её вниз к верхней части груди.
+                    Лопатки направляй вниз и назад.
+                    Не раскачивай корпус и плавно верни рукоять вверх.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="2" data-exercise="male-day2-ex2" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://sun9-21.userapi.com/impg/nvGlvpr319rQnib_M44yd_6MfUUCRUykALpPFQ/dCLu3EQQZyo.jpg?size=720x720&quality=96&sign=ae5e098876631760f7c48276cad1cdbc&c_uniq_tag=VanOttl784-J93FWtJR5brg5lbIm-eiLymhmYC2o8sI&type=album"
+                alt="Тяга нижнего блока"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>2. Тяга нижнего блока</h3>
+                <div class="exercise-description">
+                    Упражнение для средней части спины и широчайших мышц.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь устойчиво и сохрани нейтральное положение спины.
+                    Возьми рукоять и начни движение с отведения плеч назад.
+                    Потяни рукоять к нижней части живота.
+                    Не округляй спину и не раскачивайся.
+                    Контролируемо верни рукоять вперёд.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="2" data-exercise="male-day2-ex3" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://fitwill.app/api/image/4730?p=1&w=1920&h=1080"
+                alt="Тяга гантели в наклоне"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>3. Тяга гантели в наклоне</h3>
+                <div class="exercise-description">
+                    Упражнение для широчайших и мышц верхней части спины.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Поставь одну руку и колено на скамью.
+                    Спину удерживай ровной и стабильной.
+                    Свободной рукой тяни гантель к корпусу.
+                    Локоть направляй назад.
+                    Медленно опускай гантель вниз.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="2" data-exercise="male-day2-ex4" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://avatars.mds.yandex.net/i?id=3b3d2e1b3744121812fdd7253f5f512f_l-5888427-images-thumbs&n=13"
+                alt="Молотки на наклонной скамье"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>4. Молотки на наклонной</h3>
+                <div class="exercise-description">
+                    Упражнение для бицепса и мышц предплечья с нейтральным хватом.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь на наклонную скамью и опусти руки с гантелями вниз.
+                    Держи ладони направленными друг к другу.
+                    Сгибай руки в локтях без раскачивания корпуса.
+                    Поднимай гантели плавно.
+                    Медленно возвращай их в исходное положение.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="2" data-exercise="male-day2-ex5" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://avatars.mds.yandex.net/i?id=5c92fed87257bedd68671ecaf88d69ca_l-5884061-images-thumbs&n=13"
+                alt="Подъем на скамье Скотта"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>5. Подъем на скамье Скотта</h3>
+                <div class="exercise-description">
+                    Изолирующее упражнение для бицепса с опорой рук на скамье.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Плотно расположи плечи на подушке скамьи.
+                    Возьми рукоять или гантель удобным хватом.
+                    Сгибай руки, не отрывая плечи от опоры.
+                    В верхней точке не делай резкого движения.
+                    Медленно опускай вес до контролируемого положения.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+</section>
+
+
+<!-- ============================================================
+     DAY 3 — НОГИ
+     ============================================================ -->
+
+<section id="male-day3" class="workout-day">
+
+    <div class="day-title day3">
+        <h2>🔵 День 3 — Ноги</h2>
+        <p>6 упражнений · 18 подходов</p>
+    </div>
+
+    <article class="exercise" data-day="3" data-exercise="male-day3-ex1" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://i.ytimg.com/vi/mCfFgAU4U3M/maxresdefault.jpg"
+                alt="Гакк приседания"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>1. Гакк приседания</h3>
+                <div class="exercise-description">
+                    Базовое упражнение для квадрицепсов, ягодичных мышц и ног в целом.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Поставь стопы устойчиво на платформу.
+                    Спина и плечи должны сохранять контакт с опорой.
+                    Опускайся плавно, сгибая колени и таз.
+                    Колени направляй в сторону носков.
+                    Поднимайся без резкого выпрямления коленей.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="3" data-exercise="male-day3-ex2" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://photobooth.cdn.sports.ru/preset/post/4/09/5687a4c9642dfb65dfaf68af55945.png?f=webp&q=90&s=2x&w=730"
+                alt="Разгибания ног сидя"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>2. Разгибания ног сидя</h3>
+                <div class="exercise-description">
+                    Изолирующее упражнение для передней поверхности бедра.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь устойчиво и прижми спину к спинке.
+                    Расположи голени под валиком тренажёра.
+                    Плавно разгибай ноги.
+                    Не выполняй движение рывком.
+                    Контролируемо опускай вес обратно.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="3" data-exercise="male-day3-ex3" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://training.fit/wp-content/uploads/2020/03/adduktoren-geraet.png"
+                alt="Сведение ног в тренажере"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>3. Сведение ног в тренажере</h3>
+                <div class="exercise-description">
+                    Упражнение для приводящих мышц внутренней поверхности бедра.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь устойчиво и расположи ноги на опорах тренажёра.
+                    Начинай движение плавно.
+                    Своди ноги без резкого рывка.
+                    Сохраняй корпус стабильным.
+                    Медленно возвращай ноги в исходное положение.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="3" data-exercise="male-day3-ex4" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://photobooth.cdn.sports.ru/preset/post/f/4f/b81ee578b4fb8b605927ccd20a1b2.png?f=webp&q=90&s=2x&w=730"
+                alt="Сгибания ног лежа"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>4. Сгибания ног лёжа</h3>
+                <div class="exercise-description">
+                    Изолирующее упражнение для задней поверхности бедра.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Ляг на тренажёр и удобно расположи голени под валиком.
+                    Удерживай таз и корпус на скамье.
+                    Плавно сгибай ноги.
+                    Не помогай себе движением корпуса.
+                    Медленно опускай валик обратно.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="3" data-exercise="male-day3-ex5" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://fitwill.app/api/image/0599?p=1&amp;w=1920&amp;h=1080"
+                alt="Сгибания ног сидя"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>5. Сгибания ног сидя</h3>
+                <div class="exercise-description">
+                    Упражнение для задней поверхности бедра с акцентом на сгибатели колена.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь глубоко в тренажёр и зафиксируй бёдра.
+                    Расположи голени за валиком.
+                    Сгибай ноги плавным движением.
+                    Сохраняй корпус неподвижным.
+                    Контролируемо верни ноги в исходное положение.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="3" data-exercise="male-day3-ex6" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://sport-i-zdorovie.ru/wp-content/uploads/2022/02/uprazhnenie-zhim-nogami-myshcy-1024x429.png"
+                alt="Жим ногами"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>6. Жим ногами</h3>
+                <div class="exercise-description">
+                    Базовое упражнение для квадрицепсов, ягодичных мышц и задней поверхности бедра.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Установи стопы на платформу примерно на ширине плеч.
+                    Плотно прижми спину и таз к спинке тренажёра.
+                    Плавно опускай платформу.
+                    Колени направляй в сторону носков.
+                    Выжимай платформу вверх без резкого движения.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+</section>
+
+
+<!-- ============================================================
+     DAY 4 — ПЛЕЧИ
+     ============================================================ -->
+
+<section id="male-day4" class="workout-day">
+
+    <div class="day-title day4">
+        <h2>🔵 День 4 — Плечи</h2>
+        <p>6 упражнений · 18 подходов</p>
+    </div>
+
+    <article class="exercise" data-day="4" data-exercise="male-day4-ex1" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://weighttraining.guide/wp-content/uploads/2021/08/Machine-rear-delt-fly.png"
+                alt="Разведение в тренажере на заднюю дельту"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>1. Разведение в тренажере на заднюю дельту</h3>
+                <div class="exercise-description">
+                    Упражнение для задней части плеч и верхней части спины.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь устойчиво и настрой тренажёр под свой рост.
+                    Возьми рукояти и слегка согни руки.
+                    Разводи руки в стороны плавным движением.
+                    Не поднимай плечи к ушам.
+                    Медленно верни рукояти в исходное положение.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="4" data-exercise="male-day4-ex2" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://weighttraining.guide/wp-content/uploads/2021/04/Dumbbell-front-raise.png"
+                alt="Подъем гантелей перед собой"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>2. Подъём гантелей перед собой</h3>
+                <div class="exercise-description">
+                    Упражнение с акцентом на переднюю часть плеч.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Встань устойчиво и держи гантели перед бёдрами.
+                    Руки слегка согни в локтях.
+                    Поднимай гантели перед собой плавно.
+                    Не раскачивай корпус.
+                    Опускай гантели под контролем.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="4" data-exercise="male-day4-ex3" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://weighttraining.guide/wp-content/uploads/2021/04/Dumbbell-lateral-raise.png"
+                alt="Махи гантелями в стороны"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>3. Махи в стороны</h3>
+                <div class="exercise-description">
+                    Изолирующее упражнение для средней части дельтовидных мышц.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Встань прямо и держи гантели по бокам.
+                    Слегка согни руки в локтях.
+                    Поднимай гантели в стороны плавным движением.
+                    Не раскачивай корпус.
+                    Контролируемо опускай гантели вниз.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="4" data-exercise="male-day4-ex4" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://weighttraining.guide/wp-content/uploads/2021/02/Dumbbell-shoulder-press.png"
+                alt="Жим гантелей сидя"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>4. Жим гантелей сидя</h3>
+                <div class="exercise-description">
+                    Базовое упражнение для плечевого пояса и трицепса.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Сядь на скамью с опорой для спины.
+                    Держи гантели примерно на уровне плеч.
+                    Стопы устойчиво стоят на полу.
+                    Выжимай гантели вверх контролируемо.
+                    Не переразгибай поясницу.
+                    Плавно опускай гантели обратно.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="4" data-exercise="male-day4-ex5" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://weighttraining.guide/wp-content/uploads/2021/05/Barbell-upright-row.png"
+                alt="Тяга штанги к подбородку"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>5. Тяга штанги к подбородку</h3>
+                <div class="exercise-description">
+                    Упражнение для плечевого пояса и верхней части спины.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Возьми штангу удобным хватом.
+                    Держи корпус устойчиво и не раскачивайся.
+                    Поднимай штангу вдоль корпуса плавным движением.
+                    Локти направляй вверх и в стороны.
+                    Не поднимай вес выше комфортной для плеч высоты.
+                    Медленно опусти штангу.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+    <article class="exercise" data-day="4" data-exercise="male-day4-ex6" data-sets="3">
+        <div class="exercise-header">
+            <img
+                class="exercise-image"
+                src="https://weighttraining.guide/wp-content/uploads/2021/04/Face-pull.png"
+                alt="Тяга каната к лицу"
+                onclick="openImage(this.src)"
+            >
+            <div>
+                <h3>6. Тяга каната к лицу</h3>
+                <div class="exercise-description">
+                    Упражнение для задней дельты, верхней части спины и мышц, стабилизирующих плечевой сустав.
+                </div>
+                <div class="technique">
+                    <strong>Техника</strong>
+                    Установи канат на верхний блок.
+                    Возьми его двумя руками и встань устойчиво.
+                    Потяни канат к лицу, разводя руки в стороны.
+                    Локти направляй в стороны.
+                    Не раскачивай корпус.
+                    Плавно верни канат в исходное положение.
+                </div>
+            </div>
+        </div>
+        <div class="sets"></div>
+        <div class="previous"></div>
+    </article>
+
+</section>
+
+    <!-- ============================================================
+         УПРАВЛЕНИЕ ТРЕНИРОВКОЙ
+         ============================================================ -->
+
+    <section
+        id="trainingControls"
+        class="training-controls hidden"
+    >
+
+        <button
+            class="finish-button"
+            onclick="finishCurrentDay()"
+        >
+            🏁 Завершить тренировку
+        </button>
+
+        <button
+            class="reset-button"
+            onclick="resetCurrentDay()"
+        >
+            🔄 Сбросить текущий день
+        </button>
+
+        <button
+            id="changeGenderButton"
+            class="change-gender-button"
+            onclick="changeGender()"
+        >
+            🔄 Сменить программу
+        </button>
+
+        <div
+            id="trainingMessage"
+            class="training-message"
+        >
+            Войди в аккаунт и выбери день.
+        </div>
+
+    </section>
+
+    <!-- ============================================================
+         ИСТОРИЯ
+         ============================================================ -->
+
+    <section
+        id="historySection"
+        class="history hidden"
+    >
+
+        <h2>🕘 История тренировок</h2>
+
+        <div id="historyList">
+            Войди в аккаунт, чтобы увидеть историю.
+        </div>
+
+    </section>
+
+    <section id="completion" class="completion">
+
+        <h2>🎉 Тренировка завершена!</h2>
+
+        <p>
+            Результаты сохранены в Firebase.
+        </p>
+
+        <button onclick="closeCompletion()">
+            Вернуться к тренировкам
+        </button>
+
+    </section>
+
+</main>
+
+<div
+    id="imageModal"
+    class="image-modal"
+    onclick="closeImage()"
+>
+    <span
+        class="close-modal"
+        onclick="event.stopPropagation(); closeImage()"
+    >
+        ×
+    </span>
+
+    <img
+        id="modalImage"
+        src=""
+        alt="Упражнение"
+        onclick="event.stopPropagation()"
+    >
+</div>
+
+<script type="module">
+
+    import {
+        initializeApp
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+
+    import {
+        getAuth,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+    import {
+        getFirestore,
+        doc,
+        setDoc,
+        collection,
+        getDocs,
+        getDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+
+    // ============================================================
+    // FIREBASE CONFIG
+    // ============================================================
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAD-uISIFVppnp2B0qXWxmCces87Uuz4E4",
+        authDomain: "sport-cc0ea.firebaseapp.com",
+        projectId: "sport-cc0ea",
+        storageBucket: "sport-cc0ea.firebasestorage.app",
+        messagingSenderId: "168373910871",
+        appId: "1:168373910871:web:269fb8e619ff109f14d212"
+    };
+
+
+    // ============================================================
+    // FIREBASE
+    // ============================================================
+
+    let app;
+
+    let auth;
+
+    let db;
+
+    try {
+
+        app = initializeApp(firebaseConfig);
+
+        auth = getAuth(app);
+
+        db = getFirestore(app);
+
+        console.log("Firebase initialized");
+
+    } catch (error) {
+
+        console.error(
+            "Firebase initialization error:",
+            error
+        );
+
+        document.getElementById(
+            "userStatus"
+        ).textContent =
+            "Ошибка запуска Firebase: " +
+            error.message;
+
+    }
+
+
+    // ============================================================
+    // STATE
+    // ============================================================
+
+    let currentUser = null;
+
+    let currentDay = null;
+
+    let trainingStarted = false;
+
+    let currentWorkoutId = null;
+
+    let currentGender = null;
+
+
+    const femaleDayTotals = {
+        1: 20,
+        2: 23,
+        3: 24
+    };
+
+
+    const maleDayTotals = {
+        1: 19,
+        2: 23,
+        3: 23
+    };
+
+
+    const femaleDayNames = {
+        1: "День 1 — Ноги + корпус",
+        2: "День 2 — Верх тела",
+        3: "День 3 — Функциональная"
+    };
+
+
+    const maleDayNames = {
+        1: "День 1 — Грудь и трицепс",
+        2: "День 2 — Спина и бицепс",
+        3: "День 3 — Ноги",
+        4: "День 4 - Плечи"
+    };
+
+
+    // ============================================================
+    // CURRENT PROGRAM HELPERS
+    // ============================================================
+
+    function getDayTotals() {
+
+        if (currentGender === "male") {
+            return maleDayTotals;
+        }
+
+        return femaleDayTotals;
+
+    }
+
+
+    function getDayNames() {
+
+        if (currentGender === "male") {
+            return maleDayNames;
+        }
+
+        return femaleDayNames;
+
+    }
+
+
+    function getWorkoutSectionId(day) {
+
+        if (currentGender === "male") {
+            return `male-day${day}`;
+        }
+
+        return `day${day}`;
+
+    }
+
+
+    function getResultKey(exerciseId, setNumber) {
+
+        if (currentGender === "male") {
+
+            return `male_${exerciseId}_set${setNumber}`;
+
+        }
+
+        /*
+         * Женские ключи оставлены в старом формате,
+         * чтобы существующие результаты продолжили работать.
+         */
+
+        return `${exerciseId}_set${setNumber}`;
+
+    }
+
+
+    function applyGenderTheme() {
+
+        document.body.classList.toggle(
+            "male-theme",
+            currentGender === "male"
+        );
+
+    }
+
+
+    function updateGenderUI() {
+
+        const genderPanel =
+            document.getElementById(
+                "genderPanel"
+            );
+
+        const daySelector =
+            document.getElementById(
+                "daySelector"
+            );
+
+        const progressBox =
+            document.getElementById(
+                "progressBox"
+            );
+
+        const infoBox =
+            document.getElementById(
+                "infoBox"
+            );
+
+        const trainingControls =
+            document.getElementById(
+                "trainingControls"
+            );
+
+        const historySection =
+            document.getElementById(
+                "historySection"
+            );
+
+        const changeButton =
+            document.getElementById(
+                "changeGenderButton"
+            );
+
+
+        const hasGender =
+            currentGender !== null;
+
+
+        genderPanel.classList.toggle(
+            "hidden",
+            !currentUser || hasGender
+        );
+
+
+        daySelector.classList.toggle(
+            "hidden",
+            !currentUser || !hasGender
+        );
+
+
+        progressBox.classList.toggle(
+            "hidden",
+            !currentUser || !hasGender
+        );
+
+
+        infoBox.classList.toggle(
+            "hidden",
+            !currentUser || !hasGender
+        );
+
+
+        trainingControls.classList.toggle(
+            "hidden",
+            !currentUser || !hasGender
+        );
+
+
+        historySection.classList.toggle(
+            "hidden",
+            !currentUser || !hasGender
+        );
+
+
+        changeButton.classList.toggle(
+            "hidden",
+            !hasGender
+        );
+
+    }
+
+
+    function resetWorkoutPage() {
+
+        currentDay = null;
+
+        trainingStarted = false;
+
+        currentWorkoutId = null;
+
+
+        document
+            .querySelectorAll(".workout-day")
+            .forEach(
+                section => {
+
+                    section.classList.remove(
+                        "active"
+                    );
+
+                }
+            );
+
+
+        document.getElementById(
+            "progressTitle"
+        ).textContent =
+            "Выбери тренировочный день";
+
+
+        document.getElementById(
+            "progressText"
+        ).textContent =
+            "0 / 0";
+
+
+        document.getElementById(
+            "progressBar"
+        ).style.width =
+            "0%";
+
+
+        document.getElementById(
+            "trainingMessage"
+        ).textContent =
+            "Войди в аккаунт и выбери день.";
+
+
+        document.getElementById(
+            "completion"
+        ).classList.remove(
+            "active"
+        );
+
+    }
+
+
+    // ============================================================
+    // UI HELPERS
+    // ============================================================
+
+    function setStatus(text) {
+
+        const element =
+            document.getElementById(
+                "userStatus"
+            );
+
+        if (element) {
+            element.textContent = text;
+        }
+
+    }
+
+
+    function showProfilePanel(show) {
+
+        document
+            .getElementById("loginPanel")
+            .classList.toggle(
+                "hidden",
+                show
+            );
+
+        document
+            .getElementById("profilePanel")
+            .classList.toggle(
+                "hidden",
+                !show
+            );
+
+    }
+
+
+    function showAuthError(error) {
+
+        console.error(
+            "Firebase Auth error:",
+            error
+        );
+
+        let message =
+            error?.code ||
+            error?.message ||
+            "Неизвестная ошибка";
+
+        const messages = {
+
+            "auth/invalid-credential":
+                "Неверный email или пароль.",
+
+            "auth/invalid-email":
+                "Некорректный email.",
+
+            "auth/email-already-in-use":
+                "Этот email уже зарегистрирован.",
+
+            "auth/weak-password":
+                "Пароль слишком простой.",
+
+            "auth/user-not-found":
+                "Пользователь не найден.",
+
+            "auth/wrong-password":
+                "Неверный пароль.",
+
+            "auth/too-many-requests":
+                "Слишком много попыток. Попробуй позже.",
+
+            "auth/network-request-failed":
+                "Нет соединения с Firebase.",
+
+            "auth/operation-not-allowed":
+                "В Firebase не включён вход по email и паролю.",
+
+            "auth/unauthorized-domain":
+                "Этот домен не разрешён в Firebase Authentication."
+
+        };
+
+
+        if (messages[error?.code]) {
+            message = messages[error.code];
+        }
+
+
+        setStatus(
+            "Ошибка: " + message
+        );
+
+
+        alert(
+            "Firebase:\n\n" + message
+        );
+
+    }
+
+
+    // ============================================================
+    // REGISTER
+    // ============================================================
+
+    window.register = async function() {
+
+        if (!auth) {
+
+            alert(
+                "Firebase не инициализирован."
+            );
+
+            return;
+        }
+
+
+        const email =
+            document
+                .getElementById("emailInput")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("passwordInput")
+                .value;
+
+
+        if (!email || !password) {
+
+            alert(
+                "Введите email и пароль."
+            );
+
+            return;
+        }
+
+
+        if (password.length < 6) {
+
+            alert(
+                "Пароль должен содержать минимум 6 символов."
+            );
+
+            return;
+        }
+
+
+        setStatus(
+            "Создаём аккаунт..."
+        );
+
+
+        try {
+
+            await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            setStatus(
+                "Аккаунт создан. Firebase подключён ✓"
+            );
+
+        } catch (error) {
+
+            showAuthError(error);
+
+        }
+
+    };
+
+
+    // ============================================================
+    // LOGIN
+    // ============================================================
+
+    window.login = async function() {
+
+        if (!auth) {
+
+            alert(
+                "Firebase не инициализирован."
+            );
+
+            return;
+        }
+
+
+        const email =
+            document
+                .getElementById("emailInput")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("passwordInput")
+                .value;
+
+
+        if (!email || !password) {
+
+            alert(
+                "Введите email и пароль."
+            );
+
+            return;
+        }
+
+
+        setStatus(
+            "Выполняем вход..."
+        );
+
+
+        try {
+
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+        } catch (error) {
+
+            showAuthError(error);
+
+        }
+
+    };
+
+
+    // ============================================================
+    // LOGOUT
+    // ============================================================
+
+    window.logout = async function() {
+
+        if (!auth) {
+            return;
+        }
+
+
+        try {
+
+            await signOut(auth);
+
+            currentUser = null;
+
+            currentGender = null;
+
+            applyGenderTheme();
+
+            resetWorkoutPage();
+
+
+            document.getElementById(
+                "historyList"
+            ).textContent =
+                "Войди в аккаунт, чтобы увидеть историю.";
+
+
+            showProfilePanel(false);
+
+            updateGenderUI();
+
+
+            setStatus(
+                "Вы вышли из аккаунта."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+        }
+
+    };
+
+
+    // ============================================================
+    // AUTH STATE
+    // ============================================================
+
+    if (auth) {
+
+        onAuthStateChanged(
+            auth,
+            async user => {
+
+                if (!user) {
+
+                    currentUser = null;
+
+                    currentGender = null;
+
+                    applyGenderTheme();
+
+                    resetWorkoutPage();
+
+                    showProfilePanel(false);
+
+                    updateGenderUI();
+
+                    setStatus(
+                        "Firebase подключён. Войди или создай аккаунт."
+                    );
+
+                    return;
+                }
+
+
+                currentUser = user;
+
+                /*
+                 * Пол не сохраняется в Firebase.
+                 * После нового входа пользователь снова выбирает программу.
+                 */
+
+                currentGender = null;
+
+                applyGenderTheme();
+
+                resetWorkoutPage();
+
+                showProfilePanel(true);
+
+
+                document.getElementById(
+                    "accountInfo"
+                ).textContent =
+                    `Аккаунт: ${user.email}`;
+
+
+                document.getElementById(
+                    "historyList"
+                ).textContent =
+                    "Выбери программу, чтобы увидеть историю.";
+
+
+                setStatus(
+                    "Firebase подключён · синхронизация включена ✓"
+                );
+
+
+                updateStartButtons();
+
+                updateGenderUI();
+
+            }
+        );
+
+    }
+
+
+    // ============================================================
+    // SELECT GENDER / PROGRAM
+    // ============================================================
+
+    window.selectGender = function(gender) {
+
+        if (
+            gender !== "female" &&
+            gender !== "male"
+        ) {
+            return;
+        }
+
+
+        if (!currentUser) {
+
+            alert(
+                "Сначала войди в аккаунт."
+            );
+
+            return;
+        }
+
+
+        currentGender = gender;
+
+        applyGenderTheme();
+
+        resetWorkoutPage();
+
+        updateStartButtons();
+
+        updateGenderUI();
+
+
+        const programName =
+            gender === "male"
+                ? "мужская"
+                : "женская";
+
+
+        document.getElementById(
+            "historyList"
+        ).textContent =
+            `Загрузка истории ${programName} программы...`;
+
+
+        loadHistory();
+
+    };
+
+
+    // ============================================================
+    // CHANGE PROGRAM
+    // ============================================================
+
+    window.changeGender = function() {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        currentGender = null;
+
+        applyGenderTheme();
+
+        resetWorkoutPage();
+
+        document
+            .querySelectorAll(".workout-day")
+            .forEach(
+                section => {
+
+                    section.classList.remove(
+                        "active"
+                    );
+
+                }
+            );
+
+
+        updateGenderUI();
+
+        document.getElementById(
+            "historyList"
+        ).textContent =
+            "Выбери программу, чтобы увидеть историю.";
+
+    };
+
+
+    // ============================================================
+    // START DAY
+    // ============================================================
+
+    window.startDay = async function(day) {
+
+        if (!currentUser) {
+
+            alert(
+                "Сначала войди в аккаунт."
+            );
+
+            return;
+        }
+
+
+        if (!currentGender) {
+
+            alert(
+                "Сначала выбери программу."
+            );
+
+            return;
+        }
+
+
+        currentDay = day;
+
+        trainingStarted = true;
+
+
+        /*
+         * У каждой тренировки свой ID.
+         * Пол включён в ID, поэтому программы не пересекаются.
+         */
+
+        currentWorkoutId =
+            `${Date.now()}_${currentGender}_day${day}`;
+
+
+        document
+            .querySelectorAll(".workout-day")
+            .forEach(
+                section => {
+
+                    section.classList.remove(
+                        "active"
+                    );
+
+                }
+            );
+
+
+        const sectionId =
+            getWorkoutSectionId(day);
+
+
+        const workoutSection =
+            document.getElementById(
+                sectionId
+            );
+
+
+        if (!workoutSection) {
+
+            console.error(
+                "Workout section not found:",
+                sectionId
+            );
+
+            return;
+        }
+
+
+        workoutSection.classList.add(
+            "active"
+        );
+
+
+        const dayNames =
+            getDayNames();
+
+
+        document.getElementById(
+            "progressTitle"
+        ).textContent =
+            dayNames[day];
+
+
+        document.getElementById(
+            "trainingMessage"
+        ).textContent =
+            `${dayNames[day]} запущен.`;
+
+
+        document.getElementById(
+            "completion"
+        ).classList.remove(
+            "active"
+        );
+
+
+        createSetControls();
+
+
+        await loadPreviousResults();
+
+
+        updateProgress();
+
+
+        updateButtonsAvailability();
+
+
+        await loadHistory(day);
+
+    };
+
+
+    // ============================================================
+    // CREATE SET CONTROLS
+    // ============================================================
+
+    function createSetControls() {
+
+        const exercises =
+            document.querySelectorAll(
+                ".workout-day.active .exercise"
+            );
+
+
+        exercises.forEach(
+            exercise => {
+
+                const setsContainer =
+                    exercise.querySelector(
+                        ".sets"
+                    );
+
+
+                if (!setsContainer) {
+                    return;
+                }
+
+
+                setsContainer.innerHTML = "";
+
+
+                const sets =
+                    Number(
+                        exercise.dataset.sets
+                    );
+
+
+                for (
+                    let i = 1;
+                    i <= sets;
+                    i++
+                ) {
+
+                    const row =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    row.className =
+                        "set-row";
+
+
+                    row.dataset.set =
+                        i;
+
+
+                    row.innerHTML = `
+                        <div class="set-number">
+                            Подход ${i}
+                        </div>
+
+                        <input
+                            class="weight-input"
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            placeholder="Вес, кг"
+                        >
+
+                        <input
+                            class="reps-input"
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="Повторы"
+                        >
+
+                        <button
+                            class="set-button"
+                            disabled
+                        >
+                            ✓ Готово
+                        </button>
+                    `;
+
+
+                    const weightInput =
+                        row.querySelector(
+                            ".weight-input"
+                        );
+
+
+                    const repsInput =
+                        row.querySelector(
+                            ".reps-input"
+                        );
+
+
+                    const button =
+                        row.querySelector(
+                            ".set-button"
+                        );
+
+
+                    button.addEventListener(
+                        "click",
+                        async () => {
+
+                            await completeSet(
+                                exercise,
+                                i,
+                                weightInput,
+                                repsInput,
+                                button
+                            );
+
+                        }
+                    );
+
+
+                    setsContainer.appendChild(
+                        row
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    // ============================================================
+    // COMPLETE SET
+    // ============================================================
+
+    async function completeSet(
+        exercise,
+        setNumber,
+        weightInput,
+        repsInput,
+        button
+    ) {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        if (!currentGender) {
+            return;
+        }
+
+
+        const weight =
+            weightInput.value.trim();
+
+
+        const reps =
+            repsInput.value.trim();
+
+
+        if (
+            weight === "" ||
+            reps === ""
+        ) {
+
+            alert(
+                "Укажи вес и количество повторений."
+            );
+
+            return;
+        }
+
+
+        const day =
+            Number(
+                exercise.dataset.day
+            );
+
+
+        const exerciseId =
+            exercise.dataset.exercise;
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Сохраняю...";
+
+
+        try {
+
+            const setRef =
+                doc(
+                    db,
+                    "users",
+                    currentUser.uid,
+                    "workouts",
+                    currentWorkoutId,
+                    "sets",
+                    `${exerciseId}_set${setNumber}`
+                );
+
+
+            await setDoc(
+                setRef,
+                {
+                    day: day,
+                    gender: currentGender,
+                    exerciseId: exerciseId,
+                    setNumber: Number(setNumber),
+                    weight: Number(weight),
+                    reps: Number(reps),
+                    completed: true,
+                    savedAt: serverTimestamp()
+                },
+                {
+                    merge: true
+                }
+            );
+
+
+            /*
+             * Последний результат.
+             *
+             * Женская программа использует старые ключи,
+             * чтобы уже сохраненные женские результаты не потерялись.
+             *
+             * Мужская программа получает ключи с префиксом male_,
+             * поэтому результаты двух программ не пересекаются.
+             */
+
+            const lastRef =
+                doc(
+                    db,
+                    "users",
+                    currentUser.uid,
+                    "lastResults",
+                    getResultKey(
+                        exerciseId,
+                        setNumber
+                    )
+                );
+
+
+            await setDoc(
+                lastRef,
+                {
+                    day: day,
+                    gender: currentGender,
+                    exerciseId: exerciseId,
+                    setNumber: Number(setNumber),
+                    weight: Number(weight),
+                    reps: Number(reps),
+                    savedAt: serverTimestamp()
+                }
+            );
+
+
+            button.textContent =
+                "✓ Сохранено";
+
+
+            button.classList.remove(
+                "enabled"
+            );
+
+
+            button.classList.add(
+                "completed"
+            );
+
+
+            weightInput.disabled = true;
+
+            repsInput.disabled = true;
+
+
+            updateButtonsAvailability();
+
+            updateProgress();
+
+
+            setStatus(
+                "Данные сохранены и синхронизированы ✓"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Set save error:",
+                error
+            );
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "✓ Готово";
+
+
+            alert(
+                "Не удалось сохранить данные:\n\n" +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // ============================================================
+    // BUTTON AVAILABILITY
+    // ============================================================
+
+    function updateButtonsAvailability() {
+
+        if (!trainingStarted) {
+            return;
+        }
+
+
+        const exercises =
+            document.querySelectorAll(
+                ".workout-day.active .exercise"
+            );
+
+
+        exercises.forEach(
+            exercise => {
+
+                const rows =
+                    exercise.querySelectorAll(
+                        ".set-row"
+                    );
+
+
+                let previousCompleted =
+                    true;
+
+
+                rows.forEach(
+                    row => {
+
+                        const button =
+                            row.querySelector(
+                                ".set-button"
+                            );
+
+
+                        const weight =
+                            row.querySelector(
+                                ".weight-input"
+                            );
+
+
+                        const reps =
+                            row.querySelector(
+                                ".reps-input"
+                            );
+
+
+                        if (
+                            button.classList.contains(
+                                "completed"
+                            )
+                        ) {
+
+                            previousCompleted =
+                                true;
+
+
+                            weight.disabled =
+                                true;
+
+
+                            reps.disabled =
+                                true;
+
+
+                            return;
+
+                        }
+
+
+                        if (
+                            previousCompleted
+                        ) {
+
+                            button.disabled =
+                                false;
+
+
+                            button.classList.add(
+                                "enabled"
+                            );
+
+
+                            weight.disabled =
+                                false;
+
+
+                            reps.disabled =
+                                false;
+
+
+                            previousCompleted =
+                                false;
+
+                        } else {
+
+                            button.disabled =
+                                true;
+
+
+                            button.classList.remove(
+                                "enabled"
+                            );
+
+
+                            weight.disabled =
+                                true;
+
+
+                            reps.disabled =
+                                true;
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    // ============================================================
+    // PREVIOUS RESULTS
+    // ============================================================
+
+    async function loadPreviousResults() {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        if (!currentGender) {
+            return;
+        }
+
+
+        const exercises =
+            document.querySelectorAll(
+                ".workout-day.active .exercise"
+            );
+
+
+        for (
+            const exercise of exercises
+        ) {
+
+            const exerciseId =
+                exercise.dataset.exercise;
+
+
+            const previous =
+                exercise.querySelector(
+                    ".previous"
+                );
+
+
+            previous.textContent =
+                "Загрузка предыдущего результата...";
+
+
+            try {
+
+                const results = [];
+
+
+                const sets =
+                    Number(
+                        exercise.dataset.sets
+                    );
+
+
+                for (
+                    let set = 1;
+                    set <= sets;
+                    set++
+                ) {
+
+                    const resultRef =
+                        doc(
+                            db,
+                            "users",
+                            currentUser.uid,
+                            "lastResults",
+                            getResultKey(
+                                exerciseId,
+                                set
+                            )
+                        );
+
+
+                    const snapshot =
+                        await getDoc(
+                            resultRef
+                        );
+
+
+                    if (
+                        snapshot.exists()
+                    ) {
+
+                        const data =
+                            snapshot.data();
+
+
+                        /*
+                         * Дополнительная проверка gender.
+                         * Старые женские записи не имеют gender,
+                         * поэтому для female они также принимаются.
+                         */
+
+                        const genderMatches =
+                            currentGender === "male"
+                                ? data.gender === "male"
+                                : (
+                                    data.gender === "female" ||
+                                    typeof data.gender === "undefined"
+                                );
+
+
+                        if (genderMatches) {
+
+                            results.push(
+                                `Подход ${set}: ${data.weight} кг × ${data.reps}`
+                            );
+
+                        }
+
+                    }
+
+                }
+
+
+                if (results.length) {
+
+                    previous.innerHTML =
+                        `<strong>📊 Последний результат:</strong><br>${results.join("<br>")}`;
+
+                } else {
+
+                    previous.textContent =
+                        "📊 Это первая запись для этого упражнения.";
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Previous result error:",
+                    error
+                );
+
+
+                previous.textContent =
+                    "Не удалось загрузить предыдущий результат.";
+
+            }
+
+        }
+
+    }
+
+
+    // ============================================================
+    // PROGRESS
+    // ============================================================
+
+    function updateProgress() {
+
+        if (!currentDay) {
+            return;
+        }
+
+
+        const buttons =
+            document.querySelectorAll(
+                ".workout-day.active .set-button"
+            );
+
+
+        let completed = 0;
+
+
+        buttons.forEach(
+            button => {
+
+                if (
+                    button.classList.contains(
+                        "completed"
+                    )
+                ) {
+
+                    completed++;
+
+                }
+
+            }
+        );
+
+
+        const totals =
+            getDayTotals();
+
+
+        const total =
+            totals[currentDay];
+
+
+        const percent =
+            total > 0
+                ? (completed / total) * 100
+                : 0;
+
+
+        document.getElementById(
+            "progressText"
+        ).textContent =
+            `${completed} / ${total}`;
+
+
+        document.getElementById(
+            "progressBar"
+        ).style.width =
+            `${percent}%`;
+
+
+        if (
+            completed === total
+        ) {
+
+            document.getElementById(
+                "trainingMessage"
+            ).textContent =
+                "🎉 Все подходы выполнены! Можно завершить тренировку.";
+
+        }
+
+    }
+
+
+    // ============================================================
+    // FINISH WORKOUT
+    // ============================================================
+
+    window.finishCurrentDay =
+        async function() {
+
+            if (!currentDay) {
+
+                alert(
+                    "Сначала выбери тренировочный день."
+                );
+
+                return;
+            }
+
+
+            if (!currentUser) {
+
+                alert(
+                    "Сначала войди в аккаунт."
+                );
+
+                return;
+            }
+
+
+            if (!currentGender) {
+
+                alert(
+                    "Сначала выбери программу."
+                );
+
+                return;
+            }
+
+
+            const buttons =
+                document.querySelectorAll(
+                    ".workout-day.active .set-button"
+                );
+
+
+            let completed = 0;
+
+
+            buttons.forEach(
+                button => {
+
+                    if (
+                        button.classList.contains(
+                            "completed"
+                        )
+                    ) {
+
+                        completed++;
+
+                    }
+
+                }
+            );
+
+
+            const totals =
+                getDayTotals();
+
+
+            const total =
+                totals[currentDay];
+
+
+            if (
+                completed < total
+            ) {
+
+                const answer =
+                    confirm(
+                        `Выполнено ${completed} из ${total} подходов.\n\nЗавершить тренировку сейчас?`
+                    );
+
+
+                if (!answer) {
+                    return;
+                }
+
+            }
+
+
+            try {
+
+                const workoutRef =
+                    doc(
+                        db,
+                        "users",
+                        currentUser.uid,
+                        "workouts",
+                        currentWorkoutId
+                    );
+
+
+                const dayNames =
+                    getDayNames();
+
+
+                await setDoc(
+                    workoutRef,
+                    {
+                        day: currentDay,
+                        gender: currentGender,
+                        name: dayNames[currentDay],
+                        completedSets: completed,
+                        totalSets: total,
+                        finished: true,
+                        finishedAt: serverTimestamp()
+                    },
+                    {
+                        merge: true
+                    }
+                );
+
+
+                document.getElementById(
+                    "completion"
+                ).classList.add(
+                    "active"
+                );
+
+
+                document.getElementById(
+                    "trainingMessage"
+                ).textContent =
+                    "Тренировка сохранена в истории ✓";
+
+
+                setStatus(
+                    "Тренировка синхронизирована ✓"
+                );
+
+
+                await loadHistory(
+                    currentDay
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Finish error:",
+                    error
+                );
+
+
+                alert(
+                    "Не удалось сохранить тренировку:\n\n" +
+                    error.message
+                );
+
+            }
+
+        };
+
+
+    // ============================================================
+    // HISTORY
+    // ============================================================
+
+    async function loadHistory(day = null) {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        if (!currentGender) {
+            return;
+        }
+
+
+        const historyList =
+            document.getElementById(
+                "historyList"
+            );
+
+
+        historyList.textContent =
+            "Загрузка истории...";
+
+
+        try {
+
+            const workoutsRef =
+                collection(
+                    db,
+                    "users",
+                    currentUser.uid,
+                    "workouts"
+                );
+
+
+            const snapshot =
+                await getDocs(
+                    workoutsRef
+                );
+
+
+            const workouts = [];
+
+
+            snapshot.forEach(
+                item => {
+
+                    const data =
+                        item.data();
+
+
+                    /*
+                     * Старые документы без gender считаются женскими,
+                     * чтобы существующая женская история не исчезла.
+                     */
+
+                    const genderMatches =
+                        currentGender === "male"
+                            ? data.gender === "male"
+                            : (
+                                data.gender === "female" ||
+                                typeof data.gender === "undefined"
+                            );
+
+
+                    const dayMatches =
+                        day === null ||
+                        data.day === day;
+
+
+                    if (
+                        dayMatches &&
+                        data.finished === true &&
+                        genderMatches
+                    ) {
+
+                        workouts.push({
+                            id: item.id,
+                            ...data
+                        });
+
+                    }
+
+                }
+            );
+
+
+            workouts.sort(
+                (a, b) => {
+
+                    const aTime =
+                        a.finishedAt?.toMillis?.()
+                        || 0;
+
+
+                    const bTime =
+                        b.finishedAt?.toMillis?.()
+                        || 0;
+
+
+                    return bTime - aTime;
+
+                }
+            );
+
+
+            const latest =
+                workouts.slice(
+                    0,
+                    10
+                );
+
+
+            if (!latest.length) {
+
+                historyList.textContent =
+                    "Пока нет завершённых тренировок.";
+
+                return;
+
+            }
+
+
+            historyList.innerHTML = "";
+
+
+            const dayNames =
+                getDayNames();
+
+
+            latest.forEach(
+                workout => {
+
+                    const item =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    item.className =
+                        "history-item";
+
+
+                    let dateText =
+                        "Дата неизвестна";
+
+
+                    if (
+                        workout.finishedAt &&
+                        workout.finishedAt.toDate
+                    ) {
+
+                        dateText =
+                            workout.finishedAt
+                                .toDate()
+                                .toLocaleString(
+                                    "ru-RU"
+                                );
+
+                    }
+
+
+                    const dateElement =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    dateElement.className =
+                        "history-date";
+
+
+                    dateElement.textContent =
+                        `🏋️ ${dayNames[workout.day] || workout.name || "Тренировка"}`;
+
+
+                    const dateResultElement =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    dateResultElement.className =
+                        "history-result";
+
+
+                    dateResultElement.textContent =
+                        dateText;
+
+
+                    const setsElement =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    setsElement.className =
+                        "history-result";
+
+
+                    setsElement.textContent =
+                        `Подходов: ${workout.completedSets} / ${workout.totalSets}`;
+
+
+                    item.appendChild(
+                        dateElement
+                    );
+
+
+                    item.appendChild(
+                        dateResultElement
+                    );
+
+
+                    item.appendChild(
+                        setsElement
+                    );
+
+
+                    historyList.appendChild(
+                        item
+                    );
+
+                }
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "History error:",
+                error
+            );
+
+
+            historyList.textContent =
+                "Не удалось загрузить историю: " +
+                error.message;
+
+        }
+
+    }
+
+
+    // ============================================================
+    // RESET
+    // ============================================================
+
+    window.resetCurrentDay =
+        function() {
+
+            if (!currentDay) {
+
+                alert(
+                    "Сначала выбери день."
+                );
+
+                return;
+            }
+
+
+            const answer =
+                confirm(
+                    "Сбросить текущий прогресс на странице?\n\nУже сохранённые данные Firebase не будут удалены."
+                );
+
+
+            if (!answer) {
+                return;
+            }
+
+
+            createSetControls();
+
+            updateButtonsAvailability();
+
+            updateProgress();
+
+
+            document.getElementById(
+                "trainingMessage"
+            ).textContent =
+                "Текущий прогресс страницы сброшен. Старые данные Firebase сохранены.";
+
+        };
+
+
+    // ============================================================
+    // COMPLETION
+    // ============================================================
+
+    window.closeCompletion =
+        function() {
+
+            document
+                .getElementById(
+                    "completion"
+                )
+                .classList.remove(
+                    "active"
+                );
+
+        };
+
+
+    // ============================================================
+    // START BUTTONS
+    // ============================================================
+
+    function updateStartButtons() {
+
+        if (!currentGender) {
+            return;
+        }
+
+
+        for (
+            let day = 1;
+            day <= 3;
+            day++
+        ) {
+
+            const button =
+                document.getElementById(
+                    `startDay${day}`
+                );
+
+
+            if (!button) {
+                continue;
+            }
+
+
+            if (currentGender === "male") {
+
+                const icons = {
+                    1: "🔵",
+                    2: "🔵",
+                    3: "🔵"
+                };
+
+
+                const subtitles = {
+                    1: "День 1 — Грудь и трицепс",
+        2: "День 2 — Спина и бицепс",
+        3: "День 3 — Ноги",
+        4: "День 4 - Плечи"
+                };
+
+
+                button.innerHTML =
+                    `${icons[day]} ▶ Начать День ${day}<small>${subtitles[day]}</small>`;
+
+
+            } else {
+
+                const icon =
+                    day === 1
+                        ? "🩷"
+                        : day === 2
+                            ? "🟢"
+                            : "🟣";
+
+
+                const subtitle =
+                    day === 1
+                        ? "Ноги + корпус"
+                        : day === 2
+                            ? "Верх тела"
+                            : "Функциональная";
+
+
+                button.innerHTML =
+                    `${icon} ▶ Начать День ${day}<small>${subtitle}</small>`;
+
+            }
+
+        }
+
+    }
+
+
+    // ============================================================
+    // IMAGE MODAL
+    // ============================================================
+
+    window.openImage =
+        function(src) {
+
+            document.getElementById(
+                "modalImage"
+            ).src = src;
+
+
+            document.getElementById(
+                "imageModal"
+            ).classList.add(
+                "active"
+            );
+
+        };
+
+
+    window.closeImage =
+        function() {
+
+            document.getElementById(
+                "imageModal"
+            ).classList.remove(
+                "active"
+            );
+
+        };
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeImage();
+
+            }
+
+        }
+    );
+
+
+    // ============================================================
+    // INITIAL STATE
+    // ============================================================
+
+    updateGenderUI();
+
+</script>
+
+</body>
+</html>
